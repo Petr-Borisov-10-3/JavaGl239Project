@@ -6,20 +6,25 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Random;
 
 public class logic extends JPanel implements ActionListener, KeyListener {
     private int botscore = 0, playerscore = 0;
-    private int playerx = 50, playery = 400, botx = 1100, boty = 500;
+    private int playerx, playery, botx, boty, playerxold=50, playeryold=400;
     private int pbulletspeedx=0,pbulletspeedy=0,bbulletspeedx=0,bbulletspeedy=0;
     private int pbulletx,pbullety,bbulletx,bbullety;
     private int pbounceoff=0,bbounceoff=0;
+    private int timeonscreen=0;
     private int pbulletcrossborder=0;
     private boolean showdialoguewindow=true,showangrymode=false;
     private boolean pshoot=false,bshoot=false;
     private Timer time;
-    private Timer procTime;
+    private Timer procTime,timetablet;
     private long prevT;
     private int menuOpacity = 255;
+    private boolean botspawn=false,playerspawn=false;
+    Random random = new Random();
+    private int quadrant;
 
     public logic() {
         addKeyListener(this);
@@ -28,7 +33,25 @@ public class logic extends JPanel implements ActionListener, KeyListener {
         procTime = new Timer(25000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                playerscore += 1;
+                botscore += 1;
+                time.stop();
+                procTime.restart();
+                botspawn=false;
+                playerspawn=false;
+                timetablet.restart();
+                timeonscreen=0;
+                if (playerscore < 4) {
+                    showdialoguewindow = true;
+                }
+                if (playerscore == 4 && botscore<4) {
+                    showangrymode = true;
+                }
+            }
+        });
+        timetablet = new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                timeonscreen+=1;
             }
         });
         setFocusable(true);
@@ -72,6 +95,23 @@ public class logic extends JPanel implements ActionListener, KeyListener {
         //bot
         g.setFont(f);
         g.drawString(String.valueOf(botscore), 660, 115);
+        //timer on screen
+        Font f7 = new Font("Arial",Font.BOLD, 50);
+        g.setColor(Color.darkGray);
+        g.fillRect(0,750,70,50);
+        if(timeonscreen<=19){
+            g.setColor(Color.green);
+        }
+        if(timeonscreen>=20 && timeonscreen<=25){
+            g.setColor(Color.red);
+        }
+        g.setFont(f7);
+        if(timeonscreen<10) {
+            g.drawString(String.valueOf(timeonscreen), 20, 795);
+        }
+        if(timeonscreen>=10){
+            g.drawString(String.valueOf(timeonscreen), 5, 795);
+        }
         //shotborders
         g.setColor(Color.GREEN);
         g.drawLine(500, 150, 500, 800);
@@ -81,9 +121,9 @@ public class logic extends JPanel implements ActionListener, KeyListener {
         Font f2 = new Font("Arial", Font.BOLD, 60);
         Font f3 = new Font("Arial", Font.BOLD,53);
         g.setFont(f3);
-        g.drawString("SURVIVE 25S OR", 7, 90);
-        g.setFont(f2);
-        g.drawString("KILL THE BOT", 760, 90);
+        g.drawString("HIT THE TARGET", 7, 90);
+        g.setFont(f3);
+        g.drawString("IN 25 SECONDS", 777, 90);
         //map
         g.setColor(Color.RED);
         g.fillRect(100, 150, 50, 150);
@@ -98,10 +138,83 @@ public class logic extends JPanel implements ActionListener, KeyListener {
         g.fillRect(900, 250, 200, 50);
         g.fillRect(1050, 250, 50, 150);
         //player
-        g.setColor(Color.BLUE);
-        g.fillOval(playerx, playery, 50, 50);
+        if(playerspawn==false) {
+            g.setColor(Color.BLUE);
+            playerx = playerxold;
+            playery = playeryold;
+            g.fillOval(playerx, playery, 50, 50);
+            playerspawn=true;
+        }
+        if(playerspawn==true){
+            g.setColor(Color.BLUE);
+            g.fillOval(playerx, playery, 50, 50);
+        }
         //bot
+        //spawnplace
+        if(botspawn==false) {
+            quadrant= 1 + random.nextInt(9);
+            if (quadrant == 1) {
+                botx = 700 + random.nextInt(50);
+                boty = 150 + random.nextInt(650);
+                botspawn=true;
+            }
+            if (quadrant == 2) {
+                botx = 800 + random.nextInt(50);
+                boty = 150 + random.nextInt(200);
+                botspawn=true;
+            }
+            if (quadrant == 3) {
+                botx = 850;
+                boty = 150 + random.nextInt(100);
+                botspawn=true;
+            }
+            if (quadrant == 4) {
+                botx = 850 + random.nextInt(150);
+                boty = 300 + random.nextInt(150);
+                botspawn=true;
+            }
+            if (quadrant == 5) {
+                botx = 900 + random.nextInt(250);
+                boty = 150 + random.nextInt(50);
+                botspawn=true;
+            }
+            if (quadrant == 6) {
+                botx = 1050;
+                boty = 400 + random.nextInt(50);
+                botspawn=true;
+            }
+            if (quadrant == 7) {
+                botx = 1100 + random.nextInt(50);
+                boty = 250 + random.nextInt(500);
+                botspawn=true;
+            }
+            if (quadrant == 8) {
+                botx = 800;
+                boty = 700 + random.nextInt(50);
+                botspawn=true;
+            }
+            if (quadrant == 9) {
+                botx = 850 + random.nextInt(150);
+                boty = 550 + random.nextInt(200);
+                botspawn=true;
+            }
+            if (quadrant == 10) {
+                botx = 1050;
+                boty = 550 + random.nextInt(50);
+                botspawn=true;
+            }
+        }
+        //appearance
+        g.setColor(Color.RED);
         g.fillOval(botx, boty, 50, 50);
+        g.setColor(Color.white);
+        g.fillOval(botx+5, boty+5, 40, 40);
+        g.setColor(Color.RED);
+        g.fillOval(botx+10, boty+10, 30, 30);
+        g.setColor(Color.white);
+        g.fillOval(botx+15, boty+15, 20, 20);
+        g.setColor(Color.RED);
+        g.fillOval(botx+20, boty+20, 10, 10);
         //player's bullet
         g.setColor(Color.DARK_GRAY);
         if(pshoot==false) {
@@ -110,13 +223,15 @@ public class logic extends JPanel implements ActionListener, KeyListener {
         }
         g.fillOval(pbulletx,pbullety,20,20);
         //bot's bullet
+        /*
         if(bshoot==false) {
             bbulletx = botx + 15;
             bbullety = boty + 15;
         }
         g.fillOval(bbulletx,bbullety,20,20);
+        */
         //dialogue window
-        if(showdialoguewindow==true&&showangrymode==false) {
+        if(showdialoguewindow && !showangrymode) {
             g.setColor(new Color(139, 0, 255, menuOpacity));
             g.fillRect(300, 400, 600, 150);
             g.setColor(new Color(255, 140, 0, menuOpacity));
@@ -130,9 +245,9 @@ public class logic extends JPanel implements ActionListener, KeyListener {
             g.setColor(new Color(255, 140, 0, menuOpacity));
             Font f4 = new Font("Arial", Font.BOLD, 25);
             g.setFont(f4);
-            g.drawString("bot is ANGRY and has 2x damage", 385, 450);
-            g.drawString("you don't have any ability to kill him", 373, 490);
-            g.drawString("objective: SURVIVE", 475, 530);
+            g.drawString("bot is BETTER and has 2x lives", 392, 450);
+            g.drawString("now you have to hit it twice to win", 379, 490);
+            g.drawString("you have the same time", 465, 530);
         }
     }
 
@@ -140,65 +255,72 @@ public class logic extends JPanel implements ActionListener, KeyListener {
     public void actionPerformed(ActionEvent e) {
         repaint();
         if(pshoot==true){
-            pbulletx+=pbulletspeedx;
-            pbullety+=pbulletspeedy;
-            //screenborders bounceoff
-            if (pbulletx>1180 || pbulletx<0){
-                pbulletspeedx*=-1;
-                pbounceoff+=1;
-            }
-            if(pbullety<150 || pbullety>780){
-                pbulletspeedy*=-1;
-                pbounceoff+=1;
-            }
-            /*
-            //vertical bounceoffs
-            //mapborders bounceoff botside forward
-            if((pbullety>380&&pbullety<700&&pbulletx>780&&pbulletx<790)||(pbullety>230&&pbullety<300&&pbulletx>880&&pbulletx<890)||(pbullety>230&&pbullety<400&&pbulletx>1030&&pbulletx<1050)||(pbullety>630&&pbullety<=800&&pbulletx>1030&&pbulletx<1040)){
-                pbulletspeedx*=-1;
-                pbounceoff+=1;
-            }
-            //mapborders bounceoff botside backward
-            if((pbullety>380&&pbullety<700&&pbulletx>840&&pbulletx<850)||(pbullety>480&&pbullety<550&&pbulletx>1090&&pbulletx<1100)||(pbullety>230&&pbullety<400&&pbulletx>1090&&pbulletx<1100)||(pbullety>630&&pbullety<=800&&pbulletx>1090&&pbulletx<1100)){
-                pbulletspeedx*=-1;
-                pbounceoff+=1;
-            }
-            //horizontal bounceoffs
-            //mapborders bounceoff botside upward
-            if((pbullety>230&&pbullety<240&&pbulletx>880&&pbulletx<1100)||(pbullety>380&&pbullety<390&&pbulletx>780&&pbulletx<850)||(pbullety>480&&pbullety<490&&pbulletx>830&&pbulletx<1100)||(pbullety>630&&pbullety<640&&pbulletx>1030&&pbulletx<1100)){
-                pbulletspeedy*=-1;
-                pbounceoff+=1;
-            }
-            //mapborders bounceoff botside downward
-            if((pbullety>690&&pbullety<700&&pbulletx>780&&pbulletx<850)||(pbullety>540&&pbullety<550&&pbulletx>830&&pbulletx<1100)||(pbullety>390&&pbullety<400&&pbulletx>1030&&pbulletx<1100)||(pbullety>290&&pbullety<300&&pbulletx>880&&pbulletx<1075)){
-                pbulletspeedy*=-1;
-                pbounceoff+=1;
-            }
-            if(pbulletx>695&&pbulletx<705){
-                pbulletcrossborder+=1;
-            }
-            if(pbulletcrossborder==2){
-                pbounceoff=14;
-                pbulletcrossborder=0;
-            }
-            //bounceoff count
-            if(pbounceoff>=14){
+            if (playerx<400){
                 pshoot=false;
-                pbounceoff=0;
             }
+            else {
+                pbulletx += pbulletspeedx;
+                pbullety += pbulletspeedy;
+                //screenborders bounceoff
+                if (pbulletx > 1180 || pbulletx < 0) {
+                    pbulletspeedx *= -1;
+                    pbounceoff += 1;
+                }
+                if (pbullety < 150 || pbullety > 780) {
+                    pbulletspeedy *= -1;
+                    pbounceoff += 1;
+                }
+                //vertical bounceoffs
+                //mapborders bounceoff botside forward
+                if ((pbullety > 380 && pbullety < 700 && pbulletx > 780 && pbulletx < 790) || (pbullety > 230 && pbullety < 300 && pbulletx > 880 && pbulletx < 890) || (pbullety > 230 && pbullety < 400 && pbulletx > 1030 && pbulletx < 1050) || (pbullety > 630 && pbullety <= 800 && pbulletx > 1030 && pbulletx < 1040)) {
+                    pbulletspeedx *= -1;
+                    pbounceoff += 1;
+                }
+                //mapborders bounceoff botside backward
+                if ((pbullety > 380 && pbullety < 700 && pbulletx > 840 && pbulletx < 850) || (pbullety > 480 && pbullety < 550 && pbulletx > 1090 && pbulletx < 1100) || (pbullety > 230 && pbullety < 400 && pbulletx > 1090 && pbulletx < 1100) || (pbullety > 630 && pbullety <= 800 && pbulletx > 1090 && pbulletx < 1100)) {
+                    pbulletspeedx *= -1;
+                    pbounceoff += 1;
+                }
+                //horizontal bounceoffs
+                //mapborders bounceoff botside upward
+                if ((pbullety > 230 && pbullety < 240 && pbulletx > 880 && pbulletx < 1100) || (pbullety > 380 && pbullety < 390 && pbulletx > 780 && pbulletx < 850) || (pbullety > 480 && pbullety < 490 && pbulletx > 830 && pbulletx < 1100) || (pbullety > 630 && pbullety < 640 && pbulletx > 1030 && pbulletx < 1100)) {
+                    pbulletspeedy *= -1;
+                    pbounceoff += 1;
+                }
+                //mapborders bounceoff botside downward
+                if ((pbullety > 690 && pbullety < 700 && pbulletx > 780 && pbulletx < 850) || (pbullety > 540 && pbullety < 550 && pbulletx > 830 && pbulletx < 1100) || (pbullety > 390 && pbullety < 400 && pbulletx > 1030 && pbulletx < 1100) || (pbullety > 290 && pbullety < 300 && pbulletx > 880 && pbulletx < 1075)) {
+                    pbulletspeedy *= -1;
+                    pbounceoff += 1;
+                }
+                if (pbulletx > 695 && pbulletx < 705) {
+                    pbulletcrossborder += 1;
+                }
+                if (pbulletcrossborder == 2) {
+                    pbounceoff = 14;
+                    pbulletcrossborder = 0;
+                }
+                //bounceoff count
+                if (pbounceoff >= 14) {
+                    pshoot = false;
+                    pbounceoff = 0;
+                }
 
-             */
-            if(new Rectangle(pbulletx,pbullety,20,20).intersects(new Rectangle(botx,boty,50,50))){
-                playerscore+=1;
-                time.stop();
-                procTime.restart();
-                if(playerscore<4) {
-                    showdialoguewindow = true;
+                if (new Rectangle(pbulletx, pbullety, 20, 20).intersects(new Rectangle(botx, boty, 50, 50))) {
+                    playerscore += 1;
+                    time.stop();
+                    botspawn=false;
+                    playerspawn=false;
+                    procTime.restart();
+                    timetablet.restart();
+                    timeonscreen=0;
+                    if (playerscore < 4) {
+                        showdialoguewindow = true;
+                    }
+                    if (playerscore == 4 && botscore<4) {
+                        showangrymode = true;
+                    }
+                    pshoot = false;
                 }
-                if(playerscore==4){
-                    showangrymode=true;
-                }
-                pshoot=false;
             }
         }
     }
@@ -304,10 +426,17 @@ public class logic extends JPanel implements ActionListener, KeyListener {
     @Override
     public void keyReleased(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-            time.start();
-            procTime.start();
             showdialoguewindow=false;
             showangrymode=false;
+            time.start();
+            if(playerscore==0&&botscore==0){
+                procTime.start();
+            }
+            else{
+                procTime.restart();
+            }
+            timetablet.start();
+            timeonscreen=0;
         }
     }
 
