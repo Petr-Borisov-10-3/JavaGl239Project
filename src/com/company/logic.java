@@ -21,7 +21,7 @@ public class logic extends JPanel implements ActionListener, KeyListener {
     private Timer time;
     private Timer procTime,timetablet;
     private long prevT;
-    private int menuOpacity = 255;
+    private int menuOpacity = 255,menuOpacityf=255;
     private boolean botspawn=false,playerspawn=false;
     Random random = new Random();
     private int quadrant;
@@ -231,23 +231,31 @@ public class logic extends JPanel implements ActionListener, KeyListener {
         g.fillOval(bbulletx,bbullety,20,20);
         */
         //dialogue window
-        if(showdialoguewindow && !showangrymode) {
+        if(botscore==5){
+                menuOpacityf = 255;
+                g.setColor(new Color(139, 0, 255, menuOpacityf));
+                g.fillRect(300, 400, 600, 150);
+                g.setColor(new Color(255, 140, 0, menuOpacityf));
+                Font f4 = new Font("Arial", Font.BOLD, 53);
+                g.setFont(f4);
+                g.drawString("you are loseeer", 333, 485);
+        }
+        if(playerscore==5){
+            menuOpacityf=255;
+            g.setColor(new Color(139, 0, 255, menuOpacityf));
+            g.fillRect(300, 400, 600, 150);
+            g.setColor(new Color(255, 140, 0, menuOpacityf));
+            Font f4 = new Font("Arial", Font.BOLD, 53);
+            g.setFont(f4);
+            g.drawString("gg", 515, 485);
+        }
+        if(showdialoguewindow) {
             g.setColor(new Color(139, 0, 255, menuOpacity));
             g.fillRect(300, 400, 600, 150);
             g.setColor(new Color(255, 140, 0, menuOpacity));
             Font f4 = new Font("Arial", Font.BOLD, 53);
             g.setFont(f4);
             g.drawString("press ENTER to start", 333, 485);
-        }
-        if(showangrymode==true){
-            g.setColor(new Color(139, 0, 255, menuOpacity));
-            g.fillRect(300, 400, 600, 150);
-            g.setColor(new Color(255, 140, 0, menuOpacity));
-            Font f4 = new Font("Arial", Font.BOLD, 25);
-            g.setFont(f4);
-            g.drawString("bot is BETTER and has 2x lives", 392, 450);
-            g.drawString("now you have to hit it twice to win", 379, 490);
-            g.drawString("you have the same time", 465, 530);
         }
     }
 
@@ -313,12 +321,6 @@ public class logic extends JPanel implements ActionListener, KeyListener {
                     procTime.restart();
                     timetablet.restart();
                     timeonscreen=0;
-                    if (playerscore < 4) {
-                        showdialoguewindow = true;
-                    }
-                    if (playerscore == 4 && botscore<4) {
-                        showangrymode = true;
-                    }
                     pshoot = false;
                 }
             }
@@ -426,17 +428,19 @@ public class logic extends JPanel implements ActionListener, KeyListener {
     @Override
     public void keyReleased(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-            showdialoguewindow=false;
-            showangrymode=false;
-            time.start();
-            if(playerscore==0&&botscore==0){
-                procTime.start();
+            if (playerscore<5&&botscore<5) {
+                //showdialoguewindow=false;
+                //showangrymode=false;
+                menuOpacity = 0;
+                time.start();
+                if (playerscore == 0 && botscore == 0) {
+                    procTime.start();
+                } else {
+                    procTime.restart();
+                }
+                timetablet.start();
+                timeonscreen = 0;
             }
-            else{
-                procTime.restart();
-            }
-            timetablet.start();
-            timeonscreen=0;
         }
     }
 
